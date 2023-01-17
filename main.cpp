@@ -10,13 +10,7 @@ private:
     string street;
     int house_number;
     int apartment_number;
-
-
 public:
-    Addresses(string city, string street, int house_number, int apartment_number) {
-
-    }
-
     Addresses() {
         city = "Неизвестно";
         street = "Неизвестно";
@@ -24,73 +18,61 @@ public:
         apartment_number = 1;
     }
 
-    void get_addresses(Addresses* ad) {
-        int count_addres;
+    static int get_output_addresses() {
         ifstream in("in.txt");
-        in >> count_addres;
-        for (int i = 0; i < count_addres; i++) {
+        if (in.is_open() == 0) {
+            cout << "Не удалось открыть in.txt" << endl;
+            return 0;
+        }
+        ofstream out("out.txt");
+        if (out.is_open() == 0) {
+            cout << "Не удалось открыть out.txt" << endl;
+            in.close();
+            return 0;
+        }
+        int size;
+        string line;
+        in >> size;
+        Addresses* ad = new Addresses[size];
+
+        for (int i = 0; i < size; i++) {
             in >> ad[i].city;
             in >> ad[i].street;
             in >> ad[i].house_number;
             in >> ad[i].apartment_number;
         }
-        in.close();
-    }
+        ad->sort(ad, size);
+        for (int i = size-1; i >= 0; i--) {
+            line = ad[i].city + ", " + ad[i].street + ", " + to_string(ad[i].house_number) + ", " + to_string(ad[i].apartment_number) + "\n";
 
-    string output_addresses(Addresses* ad,int x) {
-        int count_addres;
-        ifstream in("in.txt");
-        in >> count_addres;
-        string* line = new string[count_addres]; 
-        for (int i = 0; i < count_addres; i++) {
-            line[i] = ad[i].city + ", " + ad[i].street + ", " + to_string(ad[i].house_number) + ", " + to_string(ad[i].apartment_number);
-
+            out << line;
         }
-        return line[x];
-        delete[] line;
-        in.close();
-    }
 
-    void sort(Addresses* addres, int size){
-        string temp;
-        for(int i = 0; i < size-1; i++)
-        for(int j =i+1; j < size; j++){
-            if(addres[i].city < addres[j].city){
-                temp = addres[i].city;
-                addres[i].city = addres[j].city;
-                addres[j].city = temp;
-            }
 
-        }
-    }
-
-    };
-
-    int main() {
-        setlocale(LC_ALL, "Russian");
-        int count_addres;
-        ifstream in("in.txt");
-        if (in.is_open() == 0) {
-            cout << "Не удалось открыть файл in.txt" << endl;
-            return 0;
-        }
-        ofstream out("out.txt");
-        if (out.is_open() == 0) {
-            cout << "Не удалось открыть файл out.txt" << endl;
-            return 0;
-            in.close();
-        }
-        in >> count_addres;
-
-        Addresses* address = new Addresses[count_addres];
-        address->get_addresses(address);
-        address->sort(address, count_addres);
-        out << count_addres << endl;
-        for (int i = count_addres -1 ; i >= 0; i--) {
-            out << address->output_addresses(address,i) << endl;
-        }
-        in.close();
         out.close();
-        delete[] address;
-        return 0;
+        in.close();
+        delete[] ad;
+        return size;
     }
+    void sort(Addresses* ad, int size) {
+        Addresses temp;
+        for (int i = 0; i < size - 1; i++)
+            for (int j = i + 1; j < size; j++) {
+                if (ad[i].city < ad[j].city) {
+                    temp = ad[i];
+                    ad[i] = ad[j];
+                    ad[j] = temp;
+                }
+
+            }
+    }
+
+};
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    Addresses address;
+    address.get_output_addresses();
+
+    return 0;
+}
